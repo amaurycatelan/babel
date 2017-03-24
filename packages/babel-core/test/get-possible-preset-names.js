@@ -1,9 +1,13 @@
 import assert from "assert";
-import getPossiblePresetNames from "../lib/config/helpers/get-possible-preset-names";
+import getPossiblePresetNames
+  from "../lib/config/helpers/get-possible-preset-names";
 
-describe("getPossiblePresetNames", function () {
+describe("getPossiblePresetNames", function() {
   it("adds the babel-preset prefix", function() {
-    assert.deepEqual(getPossiblePresetNames("foobar"), ["babel-preset-foobar", "foobar"]);
+    assert.deepEqual(getPossiblePresetNames("foobar"), [
+      "babel-preset-foobar",
+      "foobar",
+    ]);
   });
 
   it("inserts babel-preset after @org/", function() {

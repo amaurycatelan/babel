@@ -3,7 +3,10 @@ import isRegExp from "lodash/isRegExp";
 import type { Scope } from "babel-traverse";
 import * as t from "./index";
 
-export function toComputedKey(node: Object, key: Object = node.key || node.property): Object {
+export function toComputedKey(
+  node: Object,
+  key: Object = node.key || node.property,
+): Object {
   if (!node.computed) {
     if (t.isIdentifier(key)) key = t.stringLiteral(key.name);
   }
@@ -19,7 +22,10 @@ export function toComputedKey(node: Object, key: Object = node.key || node.prope
  * Expression statements are just resolved to their expression.
  */
 
-export function toSequenceExpression(nodes: Array<Object>, scope: Scope): ?Object {
+export function toSequenceExpression(
+  nodes: Array<Object>,
+  scope: Scope,
+): ?Object {
   if (!nodes || !nodes.length) return;
 
   const declars = [];
@@ -44,7 +50,7 @@ export function toSequenceExpression(nodes: Array<Object>, scope: Scope): ?Objec
       } else if (t.isExpressionStatement(node)) {
         exprs.push(node.expression);
       } else if (t.isVariableDeclaration(node)) {
-        if (node.kind !== "var") return bailed = true; // bailed
+        if (node.kind !== "var") return (bailed = true); // bailed
 
         for (const declar of (node.declarations: Array)) {
           const bindings = t.getBindingIdentifiers(declar);
@@ -63,11 +69,15 @@ export function toSequenceExpression(nodes: Array<Object>, scope: Scope): ?Objec
         ensureLastUndefined = true;
         continue;
       } else if (t.isIfStatement(node)) {
-        const consequent = node.consequent ? convert([node.consequent]) : scope.buildUndefinedNode();
-        const alternate = node.alternate ? convert([node.alternate]) : scope.buildUndefinedNode();
+        const consequent = node.consequent
+          ? convert([node.consequent])
+          : scope.buildUndefinedNode();
+        const alternate = node.alternate
+          ? convert([node.alternate])
+          : scope.buildUndefinedNode();
 
         if (consequent === true || alternate === true) {
-          return bailed = true;
+          return (bailed = true);
         }
 
         exprs.push(t.conditionalExpression(node.test, consequent, alternate));
@@ -79,7 +89,7 @@ export function toSequenceExpression(nodes: Array<Object>, scope: Scope): ?Objec
         continue;
       } else {
         // bailed, we can't turn this statement into an expression
-        return bailed = true;
+        return (bailed = true);
       }
 
       ensureLastUndefined = false;
@@ -125,9 +135,9 @@ export function toKeyAlias(node: Object, key: Object = node.key): string {
 
 toKeyAlias.uid = 0;
 
-toKeyAlias.increment = function () {
+toKeyAlias.increment = function() {
   if (toKeyAlias.uid >= Number.MAX_SAFE_INTEGER) {
-    return toKeyAlias.uid = 0;
+    return (toKeyAlias.uid = 0);
   } else {
     return toKeyAlias.uid++;
   }
@@ -143,7 +153,7 @@ export function toIdentifier(name: string): string {
   name = name.replace(/^[-0-9]+/, "");
 
   // camel case
-  name = name.replace(/[-\s]+(.)?/g, function (match, c) {
+  name = name.replace(/[-\s]+(.)?/g, function(match, c) {
     return c ? c.toUpperCase() : "";
   });
 

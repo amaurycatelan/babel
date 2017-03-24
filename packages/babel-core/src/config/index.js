@@ -9,7 +9,7 @@ export type ResolvedConfig = {
 /**
  * Standard API for loading Babel configuration data. Not for public consumption.
  */
-export default function loadConfig(opts: Object): ResolvedConfig|null {
+export default function loadConfig(opts: Object): ResolvedConfig | null {
   const mergedOpts = new OptionManager().init(opts);
   if (!mergedOpts) return null;
 
@@ -20,7 +20,9 @@ export default function loadConfig(opts: Object): ResolvedConfig|null {
 
   // With "passPerPreset" enabled there may still be presets in the options.
   if (mergedOpts.presets) {
-    passes = passes.concat(mergedOpts.presets.map((preset) => preset.plugins).filter(Boolean));
+    passes = passes.concat(
+      mergedOpts.presets.map(preset => preset.plugins).filter(Boolean),
+    );
   }
 
   return {

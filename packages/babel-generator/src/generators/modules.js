@@ -83,7 +83,9 @@ function ExportDeclaration(node: Object) {
     let hasSpecial = false;
     while (true) {
       const first = specifiers[0];
-      if (t.isExportDefaultSpecifier(first) || t.isExportNamespaceSpecifier(first)) {
+      if (
+        t.isExportDefaultSpecifier(first) || t.isExportNamespaceSpecifier(first)
+      ) {
         hasSpecial = true;
         this.print(specifiers.shift(), node);
         if (specifiers.length) {
@@ -130,7 +132,9 @@ export function ImportDeclaration(node: Object) {
     // print "special" specifiers first
     while (true) {
       const first = specifiers[0];
-      if (t.isImportDefaultSpecifier(first) || t.isImportNamespaceSpecifier(first)) {
+      if (
+        t.isImportDefaultSpecifier(first) || t.isImportNamespaceSpecifier(first)
+      ) {
         this.print(specifiers.shift(), node);
         if (specifiers.length) {
           this.token(",");

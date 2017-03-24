@@ -3,17 +3,21 @@ import callDelegate from "babel-helper-call-delegate";
 import template from "babel-template";
 import * as t from "babel-types";
 
-const buildDefaultParam = template(`
+const buildDefaultParam = template(
+  `
   let VARIABLE_NAME =
     ARGUMENTS.length > ARGUMENT_KEY && ARGUMENTS[ARGUMENT_KEY] !== undefined ?
       ARGUMENTS[ARGUMENT_KEY]
     :
       DEFAULT_VALUE;
-`);
+`,
+);
 
-const buildCutOff = template(`
+const buildCutOff = template(
+  `
   let $0 = $1[$2];
-`);
+`,
+);
 
 function hasDefaults(node) {
   for (const param of (node.params: Array<Object>)) {

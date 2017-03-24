@@ -68,17 +68,22 @@ function normalizeOptions(code, opts, tokens): Format {
   if (format.minified) {
     format.compact = true;
 
-    format.shouldPrintComment = format.shouldPrintComment || (() => format.comments);
+    format.shouldPrintComment = format.shouldPrintComment ||
+      (() => format.comments);
   } else {
-    format.shouldPrintComment = format.shouldPrintComment || ((value) => format.comments ||
-      (value.indexOf("@license") >= 0 || value.indexOf("@preserve") >= 0));
+    format.shouldPrintComment = format.shouldPrintComment ||
+      (value =>
+        format.comments ||
+        (value.indexOf("@license") >= 0 || value.indexOf("@preserve") >= 0));
   }
 
   if (format.compact === "auto") {
     format.compact = code.length > 500000; // 500KB
 
     if (format.compact) {
-      console.error("[BABEL] " + messages.get("codeGeneratorDeopt", opts.filename, "500KB"));
+      console.error(
+        "[BABEL] " + messages.get("codeGeneratorDeopt", opts.filename, "500KB"),
+      );
     }
   }
 
@@ -141,7 +146,7 @@ export class CodeGenerator {
   }
 }
 
-export default function (ast: Object, opts: Object, code: string): Object {
+export default function(ast: Object, opts: Object, code: string): Object {
   const gen = new Generator(ast, opts, code);
   return gen.generate();
 }

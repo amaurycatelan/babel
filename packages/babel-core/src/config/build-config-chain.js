@@ -16,7 +16,7 @@ const BABELIGNORE_FILENAME = ".babelignore";
 function exists(filename) {
   const cached = existsCache[filename];
   if (cached == null) {
-    return existsCache[filename] = fs.existsSync(filename);
+    return (existsCache[filename] = fs.existsSync(filename));
   } else {
     return cached;
   }
@@ -67,7 +67,9 @@ class ConfigChainBuilder {
 
     if (ignore) {
       if (!Array.isArray(ignore)) {
-        throw new Error(`.ignore should be an array, was ${JSON.stringify(ignore)}`);
+        throw new Error(
+          `.ignore should be an array, was ${JSON.stringify(ignore)}`,
+        );
       }
 
       for (const pattern of ignore) {
@@ -77,7 +79,9 @@ class ConfigChainBuilder {
 
     if (only) {
       if (!Array.isArray(only)) {
-        throw new Error(`.only should be an array, was ${JSON.stringify(only)}`);
+        throw new Error(
+          `.only should be an array, was ${JSON.stringify(only)}`,
+        );
       }
 
       for (const pattern of only) {
@@ -113,10 +117,12 @@ class ConfigChainBuilder {
         }
       }
 
-      return this.possibleDirs.some(micromatch.filter(path.resolve(dirname, pattern), {
-        nocase: true,
-        nonegate: true,
-      }));
+      return this.possibleDirs.some(
+        micromatch.filter(path.resolve(dirname, pattern), {
+          nocase: true,
+          nonegate: true,
+        }),
+      );
     } else if (typeof pattern === "function") {
       return pattern(this.filename);
     } else {
@@ -125,8 +131,9 @@ class ConfigChainBuilder {
   }
 
   errorMultipleConfigs(loc1: string, loc2: string) {
-    throw new Error(`Multiple configuration files found. Please remove one:\n- ${
-      loc1}\n- ${loc2}`);
+    throw new Error(
+      `Multiple configuration files found. Please remove one:\n- ${loc1}\n- ${loc2}`,
+    );
   }
 
   findConfigs(loc: string) {
@@ -153,21 +160,24 @@ class ConfigChainBuilder {
         const configJSLoc = path.join(loc, BABELRC_JS_FILENAME);
         const pkgLoc = path.join(loc, PACKAGE_FILENAME);
         const configLocs = [configLoc, configJSLoc, pkgLoc];
-        const foundConfigs = configLocs.reduce((arr, config) => {
-          if (exists(config)) {
-            const configAdded = config === pkgLoc
-              ? this.addConfig(config, "babel", JSON)
-              : this.addConfig(config);
+        const foundConfigs = configLocs.reduce(
+          (arr, config) => {
+            if (exists(config)) {
+              const configAdded = config === pkgLoc
+                ? this.addConfig(config, "babel", JSON)
+                : this.addConfig(config);
 
-            if (configAdded && arr.length) {
-              this.errorMultipleConfigs(arr.pop(), config);
+              if (configAdded && arr.length) {
+                this.errorMultipleConfigs(arr.pop(), config);
+              }
+
+              arr.push(config);
             }
 
-            arr.push(config);
-          }
-
-          return arr;
-        }, []);
+            return arr;
+          },
+          [],
+        );
 
         foundConfig = !!foundConfigs.length;
       }
@@ -181,8 +191,8 @@ class ConfigChainBuilder {
     let lines = file.split("\n");
 
     lines = lines
-      .map((line) => line.replace(/#(.*?)$/, "").trim())
-      .filter((line) => !!line);
+      .map(line => line.replace(/#(.*?)$/, "").trim())
+      .filter(line => !!line);
 
     if (lines.length) {
       this.mergeConfig({
@@ -205,19 +215,24 @@ class ConfigChainBuilder {
     if (path.extname(loc) === ".js") {
       try {
         const configModule = require(loc);
-        options = configModule && configModule.__esModule ? configModule.default : configModule;
+        options = configModule && configModule.__esModule
+          ? configModule.default
+          : configModule;
       } catch (err) {
         err.message = `${loc}: Error while loading config - ${err.message}`;
         throw err;
       }
 
       if (!options || typeof options !== "object") {
-        throw new Error("Configuration should be an exported JavaScript object.");
+        throw new Error(
+          "Configuration should be an exported JavaScript object.",
+        );
       }
     } else {
       const content = fs.readFileSync(loc, "utf8");
       try {
-        options = jsonCache[content] = jsonCache[content] || json.parse(content);
+        options = (jsonCache[content] = jsonCache[content] ||
+          json.parse(content));
       } catch (err) {
         err.message = `${loc}: Error while parsing JSON - ${err.message}`;
         throw err;
@@ -242,21 +257,27 @@ class ConfigChainBuilder {
     return !!options;
   }
 
-  mergeConfig({
-    type,
-    options,
-    alias,
-    loc,
-    dirname,
-  }) {
+  mergeConfig(
+    {
+      type,
+      options,
+      alias,
+      loc,
+      dirname,
+    },
+  ) {
     if (!options) {
       return false;
     }
 
     // Bail out ASAP if this file is ignored so that we run as little logic as possible on ignored files.
-    if (this.filename && this.shouldIgnore(options.ignore, options.only, dirname)) {
+    if (
+      this.filename && this.shouldIgnore(options.ignore, options.only, dirname)
+    ) {
       // TODO(logan): This is a really cross way to bail out. Avoid this in rewrite.
-      throw Object.assign(new Error("This file has been ignored."), { code: "BABEL_IGNORED_FILE" });
+      throw Object.assign(new Error("This file has been ignored."), {
+        code: "BABEL_IGNORED_FILE",
+      });
     }
 
     options = Object.assign({}, options);
@@ -291,10 +312,11 @@ class ConfigChainBuilder {
       if (extendsLoc) {
         this.addConfig(extendsLoc);
       } else {
-        throw new Error(`Couldn't resolve extends clause of ${options.extends} in ${alias}`);
+        throw new Error(
+          `Couldn't resolve extends clause of ${options.extends} in ${alias}`,
+        );
       }
       delete options.extends;
     }
   }
 }
-

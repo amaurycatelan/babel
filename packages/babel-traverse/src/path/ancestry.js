@@ -10,7 +10,7 @@ import NodePath from "./index";
 
 export function findParent(callback) {
   let path = this;
-  while (path = path.parentPath) {
+  while ((path = path.parentPath)) {
     if (callback(path)) return path;
   }
   return null;
@@ -24,7 +24,7 @@ export function find(callback) {
   let path = this;
   do {
     if (callback(path)) return path;
-  } while (path = path.parentPath);
+  } while ((path = path.parentPath));
   return null;
 }
 
@@ -33,7 +33,7 @@ export function find(callback) {
  */
 
 export function getFunctionParent() {
-  return this.findParent((path) => path.isFunction() || path.isProgram());
+  return this.findParent(path => path.isFunction() || path.isProgram());
 }
 
 /**
@@ -46,7 +46,7 @@ export function getStatementParent() {
     if (Array.isArray(path.container)) {
       return path;
     }
-  } while (path = path.parentPath);
+  } while ((path = path.parentPath));
 }
 
 /**
@@ -57,40 +57,45 @@ export function getStatementParent() {
  * position and visiting key.
  */
 
-export function getEarliestCommonAncestorFrom(paths: Array<NodePath>): NodePath {
-  return this.getDeepestCommonAncestorFrom(paths, function (deepest, i, ancestries) {
-    let earliest;
-    const keys = t.VISITOR_KEYS[deepest.type];
+export function getEarliestCommonAncestorFrom(
+  paths: Array<NodePath>,
+): NodePath {
+  return this.getDeepestCommonAncestorFrom(
+    paths,
+    function(deepest, i, ancestries) {
+      let earliest;
+      const keys = t.VISITOR_KEYS[deepest.type];
 
-    for (const ancestry of (ancestries: Array)) {
-      const path = ancestry[i + 1];
+      for (const ancestry of (ancestries: Array)) {
+        const path = ancestry[i + 1];
 
-      // first path
-      if (!earliest) {
-        earliest = path;
-        continue;
-      }
-
-      // handle containers
-      if (path.listKey && earliest.listKey === path.listKey) {
-        // we're in the same container so check if we're earlier
-        if (path.key < earliest.key) {
+        // first path
+        if (!earliest) {
           earliest = path;
           continue;
         }
+
+        // handle containers
+        if (path.listKey && earliest.listKey === path.listKey) {
+          // we're in the same container so check if we're earlier
+          if (path.key < earliest.key) {
+            earliest = path;
+            continue;
+          }
+        }
+
+        // handle keys
+        const earliestKeyIndex = keys.indexOf(earliest.parentKey);
+        const currentKeyIndex = keys.indexOf(path.parentKey);
+        if (earliestKeyIndex > currentKeyIndex) {
+          // key appears before so it's earlier
+          earliest = path;
+        }
       }
 
-      // handle keys
-      const earliestKeyIndex = keys.indexOf(earliest.parentKey);
-      const currentKeyIndex = keys.indexOf(path.parentKey);
-      if (earliestKeyIndex > currentKeyIndex) {
-        // key appears before so it's earlier
-        earliest = path;
-      }
-    }
-
-    return earliest;
-  });
+      return earliest;
+    },
+  );
 }
 
 /**
@@ -99,7 +104,10 @@ export function getEarliestCommonAncestorFrom(paths: Array<NodePath>): NodePath 
  * TODO: Possible optimisation target.
  */
 
-export function getDeepestCommonAncestorFrom(paths: Array<NodePath>, filter?: Function): NodePath {
+export function getDeepestCommonAncestorFrom(
+  paths: Array<NodePath>,
+  filter?: Function,
+): NodePath {
   if (!paths.length) {
     return this;
   }
@@ -115,7 +123,7 @@ export function getDeepestCommonAncestorFrom(paths: Array<NodePath>, filter?: Fu
   let lastCommonIndex, lastCommon;
 
   // get the ancestors of the path, breaking when the parent exceeds ourselves
-  const ancestries = paths.map((path) => {
+  const ancestries = paths.map(path => {
     const ancestry = [];
 
     do {
@@ -171,7 +179,7 @@ export function getAncestry() {
   const paths = [];
   do {
     paths.push(path);
-  } while (path = path.parentPath);
+  } while ((path = path.parentPath));
   return paths;
 }
 
@@ -186,7 +194,7 @@ export function isAncestor(maybeDescendant) {
  * A helper to find if `this` path is a descendant of @param maybeAncestor
  */
 export function isDescendant(maybeAncestor) {
-  return !!this.findParent((parent) => parent === maybeAncestor);
+  return !!this.findParent(parent => parent === maybeAncestor);
 }
 
 export function inType() {
@@ -235,7 +243,9 @@ export function inType() {
  */
 
 export function inShadow(key?) {
-  const parentFn = this.isFunction() ? this : this.findParent((p) => p.isFunction());
+  const parentFn = this.isFunction()
+    ? this
+    : this.findParent(p => p.isFunction());
   if (!parentFn) return;
 
   if (parentFn.isFunctionExpression() || parentFn.isFunctionDeclaration()) {

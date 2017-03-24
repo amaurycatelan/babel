@@ -1,9 +1,12 @@
 import * as t from "babel-types";
 import * as n from "../node";
 
-
 export function UnaryExpression(node: Object) {
-  if (node.operator === "void" || node.operator === "delete" || node.operator === "typeof") {
+  if (
+    node.operator === "void" ||
+    node.operator === "delete" ||
+    node.operator === "typeof"
+  ) {
     this.word(node.operator);
     this.space();
   } else {
@@ -51,10 +54,15 @@ export function NewExpression(node: Object, parent: Object) {
   this.word("new");
   this.space();
   this.print(node.callee, node);
-  if (node.arguments.length === 0 && this.format.minified &&
-      !t.isCallExpression(parent, { callee: node }) &&
-      !t.isMemberExpression(parent) &&
-      !t.isNewExpression(parent)) return;
+  if (
+    node.arguments.length === 0 &&
+    this.format.minified &&
+    !t.isCallExpression(parent, { callee: node }) &&
+    !t.isMemberExpression(parent) &&
+    !t.isNewExpression(parent)
+  ) {
+    return;
+  }
 
   this.token("(");
   this.printList(node.arguments, node);
@@ -115,7 +123,7 @@ export function Import() {
 }
 
 function buildYieldAwait(keyword: string) {
-  return function (node: Object) {
+  return function(node: Object) {
     this.word(keyword);
 
     if (node.delegate) {
@@ -156,8 +164,9 @@ export function AssignmentPattern(node: Object) {
 export function AssignmentExpression(node: Object, parent: Object) {
   // Somewhere inside a for statement `init` node but doesn't usually
   // needs a paren except for `in` expressions: `for (a in b ? a : b;;)`
-  const parens = this.inForStatementInitCounter && node.operator === "in" &&
-               !n.needsParens(node, parent);
+  const parens = this.inForStatementInitCounter &&
+    node.operator === "in" &&
+    !n.needsParens(node, parent);
 
   if (parens) {
     this.token("(");

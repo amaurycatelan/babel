@@ -1,4 +1,4 @@
-export default function ({ types: t }) {
+export default function({ types: t }) {
   function isString(node) {
     return t.isLiteral(node) && typeof node.value === "string";
   }
@@ -31,7 +31,11 @@ export default function ({ types: t }) {
         let templateName = "taggedTemplateLiteral";
         if (state.opts.loose) templateName += "Loose";
 
-        const templateObject = state.file.addTemplateObject(templateName, strings, raw);
+        const templateObject = state.file.addTemplateObject(
+          templateName,
+          strings,
+          raw,
+        );
         args.push(templateObject);
 
         args = args.concat(quasi.expressions);
@@ -49,7 +53,11 @@ export default function ({ types: t }) {
 
           const expr = expressions.shift();
           if (expr) {
-            if (state.opts.spec && !expr.isBaseType("string") && !expr.isBaseType("number")) {
+            if (
+              state.opts.spec &&
+              !expr.isBaseType("string") &&
+              !expr.isBaseType("number")
+            ) {
               nodes.push(t.callExpression(t.identifier("String"), [expr.node]));
             } else {
               nodes.push(expr.node);
@@ -58,7 +66,7 @@ export default function ({ types: t }) {
         }
 
         // filter out empty string literals
-        nodes = nodes.filter((n) => !t.isLiteral(n, { value: "" }));
+        nodes = nodes.filter(n => !t.isLiteral(n, { value: "" }));
 
         // since `+` is left-to-right associative
         // ensure the first node is a string if first/second isn't

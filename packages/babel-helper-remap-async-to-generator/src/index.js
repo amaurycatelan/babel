@@ -6,16 +6,19 @@ import template from "babel-template";
 import * as t from "babel-types";
 import rewriteForAwait from "./for-await";
 
-const buildWrapper = template(`
+const buildWrapper = template(
+  `
   (() => {
     var REF = FUNCTION;
     return function NAME(PARAMS) {
       return REF.apply(this, arguments);
     };
   })
-`);
+`,
+);
 
-const namedBuildWrapper = template(`
+const namedBuildWrapper = template(
+  `
   (() => {
     var REF = FUNCTION;
     function NAME(PARAMS) {
@@ -23,7 +26,8 @@ const namedBuildWrapper = template(`
     }
     return NAME;
   })
-`);
+`,
+);
 
 const awaitVisitor = {
   Function(path) {
@@ -74,7 +78,6 @@ const awaitVisitor = {
       path.replaceWithMultiple(build.node);
     }
   },
-
 };
 
 function classOrObjectMethod(path: NodePath, callId: Object) {
@@ -83,13 +86,17 @@ function classOrObjectMethod(path: NodePath, callId: Object) {
 
   node.async = false;
 
-  const container = t.functionExpression(null, [], t.blockStatement(body.body), true);
+  const container = t.functionExpression(
+    null,
+    [],
+    t.blockStatement(body.body),
+    true,
+  );
   container.shadow = true;
   body.body = [
-    t.returnStatement(t.callExpression(
-      t.callExpression(callId, [container]),
-      []
-    )),
+    t.returnStatement(
+      t.callExpression(t.callExpression(callId, [container]), []),
+    ),
   ];
 
   // Regardless of whether or not the wrapped function is a an async method
@@ -123,25 +130,30 @@ function plainFunction(path: NodePath, callId: Object) {
     NAME: asyncFnId,
     REF: path.scope.generateUidIdentifier("ref"),
     FUNCTION: built,
-    PARAMS: node.params.reduce((acc, param) => {
-      acc.done = acc.done || t.isAssignmentPattern(param) || t.isRestElement(param);
+    PARAMS: node.params.reduce(
+      (acc, param) => {
+        acc.done = acc.done ||
+          t.isAssignmentPattern(param) ||
+          t.isRestElement(param);
 
-      if (!acc.done) {
-        acc.params.push(path.scope.generateUidIdentifier("x"));
-      }
+        if (!acc.done) {
+          acc.params.push(path.scope.generateUidIdentifier("x"));
+        }
 
-      return acc;
-    }, {
-      params: [],
-      done: false,
-    }).params,
+        return acc;
+      },
+      {
+        params: [],
+        done: false,
+      },
+    ).params,
   }).expression;
 
   if (isDeclaration) {
     const declar = t.variableDeclaration("let", [
       t.variableDeclarator(
         t.identifier(asyncFnId.name),
-        t.callExpression(container, [])
+        t.callExpression(container, []),
       ),
     ]);
     declar._blockHoist = true;
@@ -151,14 +163,12 @@ function plainFunction(path: NodePath, callId: Object) {
       // the identifier into an expressionStatement
       path.parentPath.insertBefore(declar);
       path.parentPath.replaceWith(
-        t.exportNamedDeclaration(null,
-          [
-            t.exportSpecifier(
-              t.identifier(asyncFnId.name),
-              t.identifier("default")
-            ),
-          ]
-        )
+        t.exportNamedDeclaration(null, [
+          t.exportSpecifier(
+            t.identifier(asyncFnId.name),
+            t.identifier("default"),
+          ),
+        ]),
       );
       return;
     }
@@ -184,7 +194,7 @@ function plainFunction(path: NodePath, callId: Object) {
   }
 }
 
-export default function (path: NodePath, file: Object, helpers: Object) {
+export default function(path: NodePath, file: Object, helpers: Object) {
   if (!helpers) {
     // bc for 6.15 and earlier
     helpers = { wrapAsync: file };

@@ -43,10 +43,10 @@ export function evaluateTruthy(): boolean {
  *
  */
 
-export function evaluate(): { confident: boolean; value: any } {
+export function evaluate(): { confident: boolean, value: any } {
   let confident = true;
   let deoptPath: ?NodePath;
-  const seen = new Map;
+  const seen = new Map();
 
   function deopt(path) {
     if (!confident) return;
@@ -103,7 +103,11 @@ export function evaluate(): { confident: boolean; value: any } {
       return evaluate(exprs[exprs.length - 1]);
     }
 
-    if (path.isStringLiteral() || path.isNumericLiteral() || path.isBooleanLiteral()) {
+    if (
+      path.isStringLiteral() ||
+      path.isNumericLiteral() ||
+      path.isBooleanLiteral()
+    ) {
       return node.value;
     }
 
@@ -143,12 +147,16 @@ export function evaluate(): { confident: boolean; value: any } {
       }
     }
 
-    if (path.isExpressionWrapper()) { // TypeCastExpression, ExpressionStatement etc
+    if (path.isExpressionWrapper()) {
+      // TypeCastExpression, ExpressionStatement etc
       return evaluate(path.get("expression"));
     }
 
     // "foo".length
-    if (path.isMemberExpression() && !path.parentPath.isCallExpression({ callee: node })) {
+    if (
+      path.isMemberExpression() &&
+      !path.parentPath.isCallExpression({ callee: node })
+    ) {
       const property = path.get("property");
       const object = path.get("object");
 
@@ -199,18 +207,26 @@ export function evaluate(): { confident: boolean; value: any } {
       }
 
       const argument = path.get("argument");
-      if (node.operator === "typeof" && (argument.isFunction() || argument.isClass())) {
+      if (
+        node.operator === "typeof" &&
+        (argument.isFunction() || argument.isClass())
+      ) {
         return "function";
       }
 
       const arg = evaluate(argument);
       if (!confident) return;
       switch (node.operator) {
-        case "!": return !arg;
-        case "+": return +arg;
-        case "-": return -arg;
-        case "~": return ~arg;
-        case "typeof": return typeof arg;
+        case "!":
+          return !arg;
+        case "+":
+          return +arg;
+        case "-":
+          return -arg;
+        case "~":
+          return ~arg;
+        case "typeof":
+          return typeof arg;
       }
     }
 
@@ -301,26 +317,46 @@ export function evaluate(): { confident: boolean; value: any } {
       if (!confident) return;
 
       switch (node.operator) {
-        case "-": return left - right;
-        case "+": return left + right;
-        case "/": return left / right;
-        case "*": return left * right;
-        case "%": return left % right;
-        case "**": return left ** right;
-        case "<": return left < right;
-        case ">": return left > right;
-        case "<=": return left <= right;
-        case ">=": return left >= right;
-        case "==": return left == right; // eslint-disable-line eqeqeq
-        case "!=": return left != right;
-        case "===": return left === right;
-        case "!==": return left !== right;
-        case "|": return left | right;
-        case "&": return left & right;
-        case "^": return left ^ right;
-        case "<<": return left << right;
-        case ">>": return left >> right;
-        case ">>>": return left >>> right;
+        case "-":
+          return left - right;
+        case "+":
+          return left + right;
+        case "/":
+          return left / right;
+        case "*":
+          return left * right;
+        case "%":
+          return left % right;
+        case "**":
+          return left ** right;
+        case "<":
+          return left < right;
+        case ">":
+          return left > right;
+        case "<=":
+          return left <= right;
+        case ">=":
+          return left >= right;
+        case "==":
+          return left == right; // eslint-disable-line eqeqeq
+        case "!=":
+          return left != right;
+        case "===":
+          return left === right;
+        case "!==":
+          return left !== right;
+        case "|":
+          return left | right;
+        case "&":
+          return left & right;
+        case "^":
+          return left ^ right;
+        case "<<":
+          return left << right;
+        case ">>":
+          return left >> right;
+        case ">>>":
+          return left >>> right;
       }
     }
 
@@ -331,7 +367,8 @@ export function evaluate(): { confident: boolean; value: any } {
 
       // Number(1);
       if (
-        callee.isIdentifier() && !path.scope.getBinding(callee.node.name, true) &&
+        callee.isIdentifier() &&
+        !path.scope.getBinding(callee.node.name, true) &&
         VALID_CALLEES.indexOf(callee.node.name) >= 0
       ) {
         func = global[node.callee.name];
@@ -343,7 +380,8 @@ export function evaluate(): { confident: boolean; value: any } {
 
         // Math.min(1, 2)
         if (
-          object.isIdentifier() && property.isIdentifier() &&
+          object.isIdentifier() &&
+          property.isIdentifier() &&
           VALID_CALLEES.indexOf(object.node.name) >= 0 &&
           INVALID_METHODS.indexOf(property.node.name) < 0
         ) {

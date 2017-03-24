@@ -29,7 +29,7 @@ const shebangRegex = /^#!.*/;
 
 const INTERNAL_PLUGINS = loadConfig({
   babelrc: false,
-  plugins: [ blockHoistPlugin, shadowFunctionsPlugin ],
+  plugins: [blockHoistPlugin, shadowFunctionsPlugin],
 }).passes[0];
 
 const errorVisitor = {
@@ -56,7 +56,7 @@ export default class File extends Store {
     };
 
     for (const pluginPairs of passes) {
-      for (const [ plugin ] of pluginPairs) {
+      for (const [plugin] of pluginPairs) {
         if (plugin.manipulateOptions) {
           plugin.manipulateOptions(this.opts, this.parserOpts, this);
         }
@@ -167,17 +167,25 @@ export default class File extends Store {
 
   resolveModuleSource(source: string): string {
     const resolveModuleSource = this.opts.resolveModuleSource;
-    if (resolveModuleSource) source = resolveModuleSource(source, this.opts.filename);
+    if (resolveModuleSource) {
+      source = resolveModuleSource(source, this.opts.filename);
+    }
     return source;
   }
 
-  addImport(source: string, imported: string, name?: string = imported): Object {
+  addImport(
+    source: string,
+    imported: string,
+    name?: string = imported,
+  ): Object {
     const alias = `${source}:${imported}`;
     let id = this.dynamicImportIds[alias];
 
     if (!id) {
       source = this.resolveModuleSource(source);
-      id = this.dynamicImportIds[alias] = this.scope.generateUidIdentifier(name);
+      id = (this.dynamicImportIds[alias] = this.scope.generateUidIdentifier(
+        name,
+      ));
 
       const specifiers = [];
 
@@ -217,7 +225,9 @@ export default class File extends Store {
     }
 
     const ref = getHelper(name);
-    const uid = this.declarations[name] = this.scope.generateUidIdentifier(name);
+    const uid = (this.declarations[name] = this.scope.generateUidIdentifier(
+      name,
+    ));
 
     if (t.isFunctionExpression(ref) && !ref.id) {
       ref.body._compact = true;
@@ -252,7 +262,9 @@ export default class File extends Store {
     const declar = this.declarations[name];
     if (declar) return declar;
 
-    const uid = this.declarations[name] = this.scope.generateUidIdentifier("templateObject");
+    const uid = (this.declarations[name] = this.scope.generateUidIdentifier(
+      "templateObject",
+    ));
 
     const helperId = this.addHelper(helperName);
     const init = t.callExpression(helperId, [strings, raw]);
@@ -265,7 +277,11 @@ export default class File extends Store {
     return uid;
   }
 
-  buildCodeFrameError(node: Object, msg: string, Error: typeof Error = SyntaxError): Error {
+  buildCodeFrameError(
+    node: Object,
+    msg: string,
+    Error: typeof Error = SyntaxError,
+  ): Error {
     const loc = node && (node.loc || node._loc);
 
     const err = new Error(msg);
@@ -303,7 +319,7 @@ export default class File extends Store {
       // single source file to a single output file.
       const source = outputMapConsumer.sources[0];
 
-      inputMapConsumer.eachMapping(function (mapping) {
+      inputMapConsumer.eachMapping(function(mapping) {
         const generatedPosition = outputMapConsumer.generatedPositionFor({
           line: mapping.generatedLine,
           column: mapping.generatedColumn,
@@ -313,10 +329,12 @@ export default class File extends Store {
           mergedGenerator.addMapping({
             source: mapping.source,
 
-            original: mapping.source == null ? null : {
-              line: mapping.originalLine,
-              column: mapping.originalColumn,
-            },
+            original: mapping.source == null
+              ? null
+              : {
+                  line: mapping.originalLine,
+                  column: mapping.originalColumn,
+                },
 
             generated: generatedPosition,
           });
@@ -380,15 +398,15 @@ export default class File extends Store {
       const passes = [];
       const visitors = [];
 
-      for (const [ plugin, pluginOpts ] of pluginPairs.concat(INTERNAL_PLUGINS)) {
+      for (const [plugin, pluginOpts] of pluginPairs.concat(INTERNAL_PLUGINS)) {
         const pass = new PluginPass(this, plugin.key, pluginOpts);
 
-        passPairs.push([ plugin, pass ]);
+        passPairs.push([plugin, pass]);
         passes.push(pass);
         visitors.push(plugin.visitor);
       }
 
-      for (const [ plugin, pass ] of passPairs) {
+      for (const [plugin, pass] of passPairs) {
         const fn = plugin.pre;
         if (fn) fn.call(pass, this);
       }
@@ -396,16 +414,19 @@ export default class File extends Store {
       debug(this.opts, "Start transform traverse");
 
       // merge all plugin visitors into a single visitor
-      const visitor = traverse.visitors.merge(visitors, passes, this.opts.wrapPluginVisitorMethod);
+      const visitor = traverse.visitors.merge(
+        visitors,
+        passes,
+        this.opts.wrapPluginVisitorMethod,
+      );
       traverse(this.ast, visitor, this.scope);
 
       debug(this.opts, "End transform traverse");
 
-      for (const [ plugin, pass ] of passPairs) {
+      for (const [plugin, pass] of passPairs) {
         const fn = plugin.post;
         if (fn) fn.call(pass, this);
       }
-
     }
 
     return this.generate();
@@ -423,7 +444,7 @@ export default class File extends Store {
         err._babel = true;
       }
 
-      let message = err.message = `${this.opts.filename}: ${err.message}`;
+      let message = (err.message = `${this.opts.filename}: ${err.message}`);
 
       const loc = err.loc;
       if (loc) {
@@ -519,8 +540,11 @@ export default class File extends Store {
 
     debug(this.opts, "Generation start");
 
-    const _result = gen(ast, opts.generatorOpts ? Object.assign(opts, opts.generatorOpts) : opts,
-      this.code);
+    const _result = gen(
+      ast,
+      opts.generatorOpts ? Object.assign(opts, opts.generatorOpts) : opts,
+      this.code,
+    );
     result.code = _result.code;
     result.map = _result.map;
 

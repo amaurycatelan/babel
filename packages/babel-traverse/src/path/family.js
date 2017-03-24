@@ -8,7 +8,9 @@ export function getStatementParent(): ?NodePath {
   let path = this;
 
   do {
-    if (!path.parentPath || (Array.isArray(path.container) && path.isStatement())) {
+    if (
+      !path.parentPath || (Array.isArray(path.container) && path.isStatement())
+    ) {
       break;
     } else {
       path = path.parentPath;
@@ -16,7 +18,9 @@ export function getStatementParent(): ?NodePath {
   } while (path);
 
   if (path && (path.isProgram() || path.isFile())) {
-    throw new Error("File/Program node, we can't possibly find a statement parent to this");
+    throw new Error(
+      "File/Program node, we can't possibly find a statement parent to this",
+    );
   }
 
   return path;
@@ -33,7 +37,7 @@ export function getOpposite() {
 export function getCompletionRecords(): Array {
   let paths = [];
 
-  const add = function (path) {
+  const add = function(path) {
     if (path) paths = paths.concat(path.getCompletionRecords());
   };
 
@@ -77,8 +81,8 @@ export function getNextSibling(): NodePath {
 
 export function getAllNextSiblings(): Array<NodePath> {
   let _key = this.key;
-  let sibling:NodePath = this.getSibling(++_key);
-  const siblings:Array<NodePath> = [];
+  let sibling: NodePath = this.getSibling(++_key);
+  const siblings: Array<NodePath> = [];
   while (sibling.node) {
     siblings.push(sibling);
     sibling = this.getSibling(++_key);
@@ -88,8 +92,8 @@ export function getAllNextSiblings(): Array<NodePath> {
 
 export function getAllPrevSiblings(): Array<NodePath> {
   let _key = this.key;
-  let sibling:NodePath = this.getSibling(--_key);
-  const siblings:Array<NodePath> = [];
+  let sibling: NodePath = this.getSibling(--_key);
+  const siblings: Array<NodePath> = [];
   while (sibling.node) {
     siblings.push(sibling);
     sibling = this.getSibling(--_key);
@@ -97,12 +101,17 @@ export function getAllPrevSiblings(): Array<NodePath> {
   return siblings;
 }
 
-export function get(key: string, context?: boolean | TraversalContext): NodePath {
+export function get(
+  key: string,
+  context?: boolean | TraversalContext,
+): NodePath {
   if (context === true) context = this.context;
   const parts = key.split(".");
-  if (parts.length === 1) { // "foo"
+  if (parts.length === 1) {
+    // "foo"
     return this._getKey(key, context);
-  } else { // "foo.bar"
+  } else {
+    // "foo.bar"
     return this._getPattern(parts, context);
   }
 }
@@ -159,7 +168,10 @@ export function getOuterBindingIdentifiers(duplicates?) {
 // original source - https://github.com/babel/babel/blob/master/packages/babel-types/src/retrievers.js
 // path.getBindingIdentifiers returns nodes where the following re-implementation
 // returns paths
-export function getBindingIdentifierPaths(duplicates = false, outerOnly = false) {
+export function getBindingIdentifierPaths(
+  duplicates = false,
+  outerOnly = false,
+) {
   const path = this;
   let search = [].concat(path);
   const ids = Object.create(null);
@@ -173,7 +185,7 @@ export function getBindingIdentifierPaths(duplicates = false, outerOnly = false)
 
     if (id.isIdentifier()) {
       if (duplicates) {
-        const _ids = ids[id.node.name] = ids[id.node.name] || [];
+        const _ids = (ids[id.node.name] = ids[id.node.name] || []);
         _ids.push(id);
       } else {
         ids[id.node.name] = id;

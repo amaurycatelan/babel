@@ -23,7 +23,9 @@ defineType("ArrayExpression", {
     elements: {
       validate: chain(
         assertValueType("array"),
-        assertEach(assertNodeOrValueType("null", "Expression", "SpreadElement"))
+        assertEach(
+          assertNodeOrValueType("null", "Expression", "SpreadElement"),
+        ),
       ),
       default: [],
     },
@@ -89,11 +91,17 @@ defineType("BlockStatement", {
   visitor: ["directives", "body"],
   fields: {
     directives: {
-      validate: chain(assertValueType("array"), assertEach(assertNodeType("Directive"))),
+      validate: chain(
+        assertValueType("array"),
+        assertEach(assertNodeType("Directive")),
+      ),
       default: [],
     },
     body: {
-      validate: chain(assertValueType("array"), assertEach(assertNodeType("Statement"))),
+      validate: chain(
+        assertValueType("array"),
+        assertEach(assertNodeType("Statement")),
+      ),
     },
   },
   aliases: ["Scopable", "BlockParent", "Block", "Statement"],
@@ -117,7 +125,10 @@ defineType("CallExpression", {
       validate: assertNodeType("Expression"),
     },
     arguments: {
-      validate: chain(assertValueType("array"), assertEach(assertNodeType("Expression", "SpreadElement"))),
+      validate: chain(
+        assertValueType("array"),
+        assertEach(assertNodeType("Expression", "SpreadElement")),
+      ),
     },
   },
   aliases: ["Expression"],
@@ -206,7 +217,14 @@ defineType("File", {
 
 defineType("ForInStatement", {
   visitor: ["left", "right", "body"],
-  aliases: ["Scopable", "Statement", "For", "BlockParent", "Loop", "ForXStatement"],
+  aliases: [
+    "Scopable",
+    "Statement",
+    "For",
+    "BlockParent",
+    "Loop",
+    "ForXStatement",
+  ],
   fields: {
     left: {
       validate: assertNodeType("VariableDeclaration", "LVal"),
@@ -250,7 +268,10 @@ defineType("FunctionDeclaration", {
       validate: assertNodeType("Identifier"),
     },
     params: {
-      validate: chain(assertValueType("array"), assertEach(assertNodeType("LVal"))),
+      validate: chain(
+        assertValueType("array"),
+        assertEach(assertNodeType("LVal")),
+      ),
     },
     body: {
       validate: assertNodeType("BlockStatement"),
@@ -277,14 +298,24 @@ defineType("FunctionDeclaration", {
 
 defineType("FunctionExpression", {
   inherits: "FunctionDeclaration",
-  aliases: ["Scopable", "Function", "BlockParent", "FunctionParent", "Expression", "Pureish"],
+  aliases: [
+    "Scopable",
+    "Function",
+    "BlockParent",
+    "FunctionParent",
+    "Expression",
+    "Pureish",
+  ],
   fields: {
     id: {
       validate: assertNodeType("Identifier"),
       optional: true,
     },
     params: {
-      validate: chain(assertValueType("array"), assertEach(assertNodeType("LVal"))),
+      validate: chain(
+        assertValueType("array"),
+        assertEach(assertNodeType("LVal")),
+      ),
     },
     body: {
       validate: assertNodeType("BlockStatement"),
@@ -313,7 +344,10 @@ defineType("Identifier", {
       },
     },
     decorators: {
-      validate: chain(assertValueType("array"), assertEach(assertNodeType("Decorator"))),
+      validate: chain(
+        assertValueType("array"),
+        assertEach(assertNodeType("Decorator")),
+      ),
     },
   },
 });
@@ -443,7 +477,10 @@ defineType("NewExpression", {
       validate: assertNodeType("Expression"),
     },
     arguments: {
-      validate: chain(assertValueType("array"), assertEach(assertNodeType("Expression", "SpreadElement"))),
+      validate: chain(
+        assertValueType("array"),
+        assertEach(assertNodeType("Expression", "SpreadElement")),
+      ),
     },
   },
 });
@@ -453,11 +490,17 @@ defineType("Program", {
   builder: ["body", "directives"],
   fields: {
     directives: {
-      validate: chain(assertValueType("array"), assertEach(assertNodeType("Directive"))),
+      validate: chain(
+        assertValueType("array"),
+        assertEach(assertNodeType("Directive")),
+      ),
       default: [],
     },
     body: {
-      validate: chain(assertValueType("array"), assertEach(assertNodeType("Statement"))),
+      validate: chain(
+        assertValueType("array"),
+        assertEach(assertNodeType("Statement")),
+      ),
     },
   },
   aliases: ["Scopable", "BlockParent", "Block", "FunctionParent"],
@@ -470,7 +513,9 @@ defineType("ObjectExpression", {
     properties: {
       validate: chain(
         assertValueType("array"),
-        assertEach(assertNodeType("ObjectMethod", "ObjectProperty", "SpreadElement"))
+        assertEach(
+          assertNodeType("ObjectMethod", "ObjectProperty", "SpreadElement"),
+        ),
       ),
     },
   },
@@ -480,7 +525,10 @@ defineType("ObjectMethod", {
   builder: ["kind", "key", "params", "body", "computed"],
   fields: {
     kind: {
-      validate: chain(assertValueType("string"), assertOneOf("method", "get", "set")),
+      validate: chain(
+        assertValueType("string"),
+        assertOneOf("method", "get", "set"),
+      ),
       default: "method",
     },
     computed: {
@@ -489,12 +537,17 @@ defineType("ObjectMethod", {
     },
     key: {
       validate(node, key, val) {
-        const expectedTypes = node.computed ? ["Expression"] : ["Identifier", "StringLiteral", "NumericLiteral"];
+        const expectedTypes = node.computed
+          ? ["Expression"]
+          : ["Identifier", "StringLiteral", "NumericLiteral"];
         assertNodeType(...expectedTypes)(node, key, val);
       },
     },
     decorators: {
-      validate: chain(assertValueType("array"), assertEach(assertNodeType("Decorator"))),
+      validate: chain(
+        assertValueType("array"),
+        assertEach(assertNodeType("Decorator")),
+      ),
     },
     body: {
       validate: assertNodeType("BlockStatement"),
@@ -508,8 +561,23 @@ defineType("ObjectMethod", {
       validate: assertValueType("boolean"),
     },
   },
-  visitor: ["key", "params", "body", "decorators", "returnType", "typeParameters"],
-  aliases: ["UserWhitespacable", "Function", "Scopable", "BlockParent", "FunctionParent", "Method", "ObjectMember"],
+  visitor: [
+    "key",
+    "params",
+    "body",
+    "decorators",
+    "returnType",
+    "typeParameters",
+  ],
+  aliases: [
+    "UserWhitespacable",
+    "Function",
+    "Scopable",
+    "BlockParent",
+    "FunctionParent",
+    "Method",
+    "ObjectMember",
+  ],
 });
 
 defineType("ObjectProperty", {
@@ -521,7 +589,9 @@ defineType("ObjectProperty", {
     },
     key: {
       validate(node, key, val) {
-        const expectedTypes = node.computed ? ["Expression"] : ["Identifier", "StringLiteral", "NumericLiteral"];
+        const expectedTypes = node.computed
+          ? ["Expression"]
+          : ["Identifier", "StringLiteral", "NumericLiteral"];
         assertNodeType(...expectedTypes)(node, key, val);
       },
     },
@@ -533,7 +603,10 @@ defineType("ObjectProperty", {
       default: false,
     },
     decorators: {
-      validate: chain(assertValueType("array"), assertEach(assertNodeType("Decorator"))),
+      validate: chain(
+        assertValueType("array"),
+        assertEach(assertNodeType("Decorator")),
+      ),
       optional: true,
     },
   },
@@ -549,7 +622,10 @@ defineType("RestElement", {
       validate: assertNodeType("LVal"),
     },
     decorators: {
-      validate: chain(assertValueType("array"), assertEach(assertNodeType("Decorator"))),
+      validate: chain(
+        assertValueType("array"),
+        assertEach(assertNodeType("Decorator")),
+      ),
     },
   },
 });
@@ -569,7 +645,10 @@ defineType("SequenceExpression", {
   visitor: ["expressions"],
   fields: {
     expressions: {
-      validate: chain(assertValueType("array"), assertEach(assertNodeType("Expression"))),
+      validate: chain(
+        assertValueType("array"),
+        assertEach(assertNodeType("Expression")),
+      ),
     },
   },
   aliases: ["Expression"],
@@ -583,7 +662,10 @@ defineType("SwitchCase", {
       optional: true,
     },
     consequent: {
-      validate: chain(assertValueType("array"), assertEach(assertNodeType("Statement"))),
+      validate: chain(
+        assertValueType("array"),
+        assertEach(assertNodeType("Statement")),
+      ),
     },
   },
 });
@@ -596,7 +678,10 @@ defineType("SwitchStatement", {
       validate: assertNodeType("Expression"),
     },
     cases: {
-      validate: chain(assertValueType("array"), assertEach(assertNodeType("SwitchCase"))),
+      validate: chain(
+        assertValueType("array"),
+        assertEach(assertNodeType("SwitchCase")),
+      ),
     },
   },
 });
@@ -674,10 +759,16 @@ defineType("VariableDeclaration", {
   aliases: ["Statement", "Declaration"],
   fields: {
     kind: {
-      validate: chain(assertValueType("string"), assertOneOf("var", "let", "const")),
+      validate: chain(
+        assertValueType("string"),
+        assertOneOf("var", "let", "const"),
+      ),
     },
     declarations: {
-      validate: chain(assertValueType("array"), assertEach(assertNodeType("VariableDeclarator"))),
+      validate: chain(
+        assertValueType("array"),
+        assertEach(assertNodeType("VariableDeclarator")),
+      ),
     },
   },
 });

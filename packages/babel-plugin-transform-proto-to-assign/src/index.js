@@ -1,6 +1,6 @@
 import pull from "lodash/pull";
 
-export default function ({ types: t }) {
+export default function({ types: t }) {
   function isProtoKey(node) {
     return t.isLiteral(t.toComputedKey(node, node.key), { value: "__proto__" });
   }
@@ -12,7 +12,9 @@ export default function ({ types: t }) {
   }
 
   function buildDefaultsCallExpression(expr, ref, file) {
-    return t.expressionStatement(t.callExpression(file.addHelper("defaults"), [ref, expr.right]));
+    return t.expressionStatement(
+      t.callExpression(file.addHelper("defaults"), [ref, expr.right]),
+    );
   }
 
   return {
@@ -24,7 +26,11 @@ export default function ({ types: t }) {
         const left = path.node.left.object;
         const temp = path.scope.maybeGenerateMemoised(left);
 
-        if (temp) nodes.push(t.expressionStatement(t.assignmentExpression("=", temp, left)));
+        if (temp) {
+          nodes.push(
+            t.expressionStatement(t.assignmentExpression("=", temp, left)),
+          );
+        }
         nodes.push(buildDefaultsCallExpression(path.node, temp || left, file));
         if (temp) nodes.push(temp);
 
@@ -36,7 +42,9 @@ export default function ({ types: t }) {
         if (!t.isAssignmentExpression(expr, { operator: "=" })) return;
 
         if (isProtoAssignmentExpression(expr)) {
-          path.replaceWith(buildDefaultsCallExpression(expr, expr.left.object, file));
+          path.replaceWith(
+            buildDefaultsCallExpression(expr, expr.left.object, file),
+          );
         }
       },
 

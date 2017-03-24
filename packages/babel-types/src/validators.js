@@ -165,7 +165,9 @@ export function isReferenced(node: Object, parent: Object): boolean {
  */
 
 export function isValidIdentifier(name: string): boolean {
-  if (typeof name !== "string" || esutils.keyword.isReservedWordES6(name, true)) {
+  if (
+    typeof name !== "string" || esutils.keyword.isReservedWordES6(name, true)
+  ) {
     return false;
   } else if (name === "await") {
     // invalid in module, valid in script; better be safe (see #4952)
@@ -180,7 +182,8 @@ export function isValidIdentifier(name: string): boolean {
  */
 
 export function isLet(node: Object): boolean {
-  return t.isVariableDeclaration(node) && (node.kind !== "var" || node[BLOCK_SCOPED_SYMBOL]);
+  return t.isVariableDeclaration(node) &&
+    (node.kind !== "var" || node[BLOCK_SCOPED_SYMBOL]);
 }
 
 /**
@@ -188,7 +191,9 @@ export function isLet(node: Object): boolean {
  */
 
 export function isBlockScoped(node: Object): boolean {
-  return t.isFunctionDeclaration(node) || t.isClassDeclaration(node) || t.isLet(node);
+  return t.isFunctionDeclaration(node) ||
+    t.isClassDeclaration(node) ||
+    t.isLet(node);
 }
 
 /**
@@ -196,7 +201,8 @@ export function isBlockScoped(node: Object): boolean {
  */
 
 export function isVar(node: Object): boolean {
-  return t.isVariableDeclaration(node, { kind: "var" }) && !node[BLOCK_SCOPED_SYMBOL];
+  return t.isVariableDeclaration(node, { kind: "var" }) &&
+    !node[BLOCK_SCOPED_SYMBOL];
 }
 
 /**
@@ -205,7 +211,9 @@ export function isVar(node: Object): boolean {
 
 export function isSpecifierDefault(specifier: Object): boolean {
   return t.isImportDefaultSpecifier(specifier) ||
-         t.isIdentifier(specifier.imported || specifier.exported, { name: "default" });
+    t.isIdentifier(specifier.imported || specifier.exported, {
+      name: "default",
+    });
 }
 
 /**
@@ -245,7 +253,9 @@ export function isImmutable(node: Object): boolean {
  */
 
 export function isNodesEquivalent(a, b) {
-  if (typeof a !== "object" || typeof a !== "object" || a == null || b == null) {
+  if (
+    typeof a !== "object" || typeof a !== "object" || a == null || b == null
+  ) {
     return a === b;
   }
 

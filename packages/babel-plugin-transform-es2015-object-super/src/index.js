@@ -1,6 +1,6 @@
 import ReplaceSupers from "babel-helper-replace-supers";
 
-export default function ({ types: t }) {
+export default function({ types: t }) {
   function Property(path, node, scope, getObjectRef, file) {
     const replaceSupers = new ReplaceSupers({
       getObjectRef: getObjectRef,
@@ -19,7 +19,7 @@ export default function ({ types: t }) {
   return {
     visitor: {
       Super(path) {
-        const parentObj = path.findParent((path) => path.isObjectExpression());
+        const parentObj = path.findParent(path => path.isObjectExpression());
         if (parentObj) parentObj.node[CONTAINS_SUPER] = true;
       },
 
@@ -28,7 +28,8 @@ export default function ({ types: t }) {
           if (!path.node[CONTAINS_SUPER]) return;
 
           let objectRef;
-          const getObjectRef = () => objectRef = objectRef || path.scope.generateUidIdentifier("obj");
+          const getObjectRef = () =>
+            objectRef = objectRef || path.scope.generateUidIdentifier("obj");
 
           const propPaths: Array = path.get("properties");
           for (let propPath of propPaths) {

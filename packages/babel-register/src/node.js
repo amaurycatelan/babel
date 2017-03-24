@@ -40,11 +40,12 @@ function compile(filename) {
   let result;
 
   // merge in base options and resolve all the plugins and presets relative to this file
-  const opts = new OptionManager().init(extend(
-    { sourceRoot: path.dirname(filename) }, // sourceRoot can be overwritten
-    deepClone(transformOpts),
-    { filename }
-  ));
+  const opts = new OptionManager().init(
+    extend({ sourceRoot: path.dirname(filename) }, deepClone(transformOpts), {
+      // sourceRoot can be overwritten
+      filename,
+    }),
+  );
 
   // Bail out ASAP if the file has been ignored.
   if (opts === null) return null;
@@ -63,13 +64,16 @@ function compile(filename) {
   }
 
   if (!result) {
-    result = babel.transformFileSync(filename, extend(opts, {
-      // Do not process config files since has already been done with the OptionManager
-      // calls above and would introduce duplicates.
-      babelrc: false,
-      sourceMaps: "both",
-      ast: false,
-    }));
+    result = babel.transformFileSync(
+      filename,
+      extend(opts, {
+        // Do not process config files since has already been done with the OptionManager
+        // calls above and would introduce duplicates.
+        babelrc: false,
+        sourceMaps: "both",
+        ast: false,
+      }),
+    );
   }
 
   if (cache) {
@@ -83,9 +87,11 @@ function compile(filename) {
 }
 
 function registerExtension(ext) {
-  const old = oldHandlers[ext] || oldHandlers[".js"] || require.extensions[".js"];
+  const old = oldHandlers[ext] ||
+    oldHandlers[".js"] ||
+    require.extensions[".js"];
 
-  require.extensions[ext] = function (m, filename) {
+  require.extensions[ext] = function(m, filename) {
     const result = compile(filename);
 
     if (result === null) old(m, filename);
@@ -94,7 +100,7 @@ function registerExtension(ext) {
 }
 
 function hookExtensions(_exts) {
-  Object.keys(oldHandlers).forEach(function (ext) {
+  Object.keys(oldHandlers).forEach(function(ext) {
     const old = oldHandlers[ext];
     if (old === undefined) {
       delete require.extensions[ext];
@@ -105,7 +111,7 @@ function hookExtensions(_exts) {
 
   oldHandlers = {};
 
-  _exts.forEach(function (ext) {
+  _exts.forEach(function(ext) {
     oldHandlers[ext] = require.extensions[ext];
     registerExtension(ext);
   });
@@ -130,10 +136,13 @@ export default function register(opts?: Object = {}) {
     transformOpts.ignore = [
       new RegExp(
         "^" +
-        escapeRegExp(process.cwd()) +
-        "(?:" + path.sep + ".*)?" +
-        escapeRegExp(path.sep + "node_modules" + path.sep)
-      , "i"),
+          escapeRegExp(process.cwd()) +
+          "(?:" +
+          path.sep +
+          ".*)?" +
+          escapeRegExp(path.sep + "node_modules" + path.sep),
+        "i",
+      ),
     ];
   }
 }

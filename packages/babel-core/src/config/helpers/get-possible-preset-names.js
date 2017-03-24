@@ -1,4 +1,6 @@
-export default function getPossiblePresetNames(presetName: string): Array<string> {
+export default function getPossiblePresetNames(
+  presetName: string,
+): Array<string> {
   const possibleNames = [`babel-preset-${presetName}`, presetName];
 
   // trying to resolve @organization shortcat

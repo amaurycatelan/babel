@@ -12,25 +12,27 @@ import buildConfigChain from "./build-config-chain";
 import path from "path";
 
 type PluginObject = {
-  pre?: Function;
-  post?: Function;
-  manipulateOptions?: Function;
+  pre?: Function,
+  post?: Function,
+  manipulateOptions?: Function,
 
   visitor: ?{
-    [key: string]: Function | {
-      enter?: Function | Array<Function>;
-      exit?: Function | Array<Function>;
-    }
-  };
+    [key: string]:
+      | Function
+      | {
+          enter?: Function | Array<Function>,
+          exit?: Function | Array<Function>,
+        },
+  },
 };
 
 type MergeOptions = {
-  type: "arguments"|"options"|"preset",
+  type: "arguments" | "options" | "preset",
   options?: Object,
   extending?: Object,
   alias: string,
   loc?: string,
-  dirname?: string
+  dirname?: string,
 };
 
 const optionNames = new Set([
@@ -85,8 +87,8 @@ export default class OptionManager {
   options: Object;
 
   static memoisedPlugins: Array<{
-    container: Function;
-    plugin: Plugin;
+    container: Function,
+    plugin: Plugin,
   }>;
 
   static memoisePluginContainer(fn, loc, i, alias) {
@@ -110,7 +112,9 @@ export default class OptionManager {
       });
       return plugin;
     } else {
-      throw new TypeError(messages.get("pluginNotObject", loc, i, typeof obj) + loc + i);
+      throw new TypeError(
+        messages.get("pluginNotObject", loc, i, typeof obj) + loc + i,
+      );
     }
   }
 
@@ -136,7 +140,9 @@ export default class OptionManager {
       if (typeof plugin === "function" || typeof plugin === "object") {
         plugin = OptionManager.memoisePluginContainer(plugin, loc, i, alias);
       } else {
-        throw new TypeError(messages.get("pluginNotFunction", loc, i, typeof plugin));
+        throw new TypeError(
+          messages.get("pluginNotFunction", loc, i, typeof plugin),
+        );
       }
     }
 
@@ -146,7 +152,7 @@ export default class OptionManager {
   }
 
   static normalisePlugins(loc, dirname, plugins) {
-    return plugins.map(function (val, i) {
+    return plugins.map(function(val, i) {
       let plugin, options;
 
       if (!val) {
@@ -168,7 +174,9 @@ export default class OptionManager {
         if (pluginLoc) {
           plugin = require(pluginLoc);
         } else {
-          throw new ReferenceError(messages.get("pluginUnknown", plugin, loc, i, dirname));
+          throw new ReferenceError(
+            messages.get("pluginUnknown", plugin, loc, i, dirname),
+          );
         }
       }
 
@@ -188,14 +196,16 @@ export default class OptionManager {
    *  - `dirname` is used to resolve plugins relative to it.
    */
 
-  mergeOptions({
-    type,
-    options: rawOpts,
-    extending: extendingOpts,
-    alias,
-    loc,
-    dirname,
-  }: MergeOptions) {
+  mergeOptions(
+    {
+      type,
+      options: rawOpts,
+      extending: extendingOpts,
+      alias,
+      loc,
+      dirname,
+    }: MergeOptions,
+  ) {
     alias = alias || "foreign";
     if (!rawOpts) return;
 
@@ -205,7 +215,7 @@ export default class OptionManager {
     }
 
     //
-    const opts = cloneDeepWith(rawOpts, (val) => {
+    const opts = cloneDeepWith(rawOpts, val => {
       if (val instanceof Plugin) {
         return val;
       }
@@ -226,15 +236,25 @@ export default class OptionManager {
     }
 
     if (type === "preset") {
-      if (opts.only !== undefined) throw new Error(`${alias}.only is not supported in a preset`);
-      if (opts.ignore !== undefined) throw new Error(`${alias}.ignore is not supported in a preset`);
-      if (opts.extends !== undefined) throw new Error(`${alias}.extends is not supported in a preset`);
-      if (opts.env !== undefined) throw new Error(`${alias}.env is not supported in a preset`);
+      if (opts.only !== undefined) {
+        throw new Error(`${alias}.only is not supported in a preset`);
+      }
+      if (opts.ignore !== undefined) {
+        throw new Error(`${alias}.ignore is not supported in a preset`);
+      }
+      if (opts.extends !== undefined) {
+        throw new Error(`${alias}.extends is not supported in a preset`);
+      }
+      if (opts.env !== undefined) {
+        throw new Error(`${alias}.env is not supported in a preset`);
+      }
     }
 
     if (opts.sourceMap !== undefined) {
       if (opts.sourceMaps !== undefined) {
-        throw new Error(`Both ${alias}.sourceMap and .sourceMaps have been set`);
+        throw new Error(
+          `Both ${alias}.sourceMap and .sourceMaps have been set`,
+        );
       }
 
       opts.sourceMaps = opts.sourceMap;
@@ -245,7 +265,9 @@ export default class OptionManager {
       // check for an unknown option
       if (!optionNames.has(key)) {
         if (removed[key]) {
-          throw new ReferenceError(`Using removed Babel 5 option: ${alias}.${key} - ${removed[key].message}`);
+          throw new ReferenceError(
+            `Using removed Babel 5 option: ${alias}.${key} - ${removed[key].message}`,
+          );
         } else {
           // eslint-disable-next-line max-len
           const unknownOptErr = `Unknown option: ${alias}.${key}. Check out http://babeljs.io/docs/usage/options/ for more information about options.`;
@@ -260,44 +282,58 @@ export default class OptionManager {
       if (parser) {
         opts.parserOpts.parser = require(parser).parse;
       } else {
-        throw new Error(`Couldn't find parser ${opts.parserOpts.parser} with "parse" method ` +
-          `relative to directory ${dirname}`);
+        throw new Error(
+          `Couldn't find parser ${opts.parserOpts.parser} with "parse" method ` +
+            `relative to directory ${dirname}`,
+        );
       }
     }
 
-    if (opts.generatorOpts && typeof opts.generatorOpts.generator === "string") {
+    if (
+      opts.generatorOpts && typeof opts.generatorOpts.generator === "string"
+    ) {
       const generator = resolve(opts.generatorOpts.generator, dirname);
       if (generator) {
         opts.generatorOpts.generator = require(generator).print;
       } else {
-        throw new Error(`Couldn't find generator ${opts.generatorOpts.generator} with "print" method ` +
-          `relative to directory ${dirname}`);
+        throw new Error(
+          `Couldn't find generator ${opts.generatorOpts.generator} with "print" method ` +
+            `relative to directory ${dirname}`,
+        );
       }
     }
 
     // resolve plugins
     if (opts.plugins) {
-      if (!Array.isArray(rawOpts.plugins)) throw new Error(`${alias}.plugins should be an array`);
+      if (!Array.isArray(rawOpts.plugins)) {
+        throw new Error(`${alias}.plugins should be an array`);
+      }
 
       opts.plugins = OptionManager.normalisePlugins(loc, dirname, opts.plugins);
     }
 
     // resolve presets
     if (opts.presets) {
-      if (!Array.isArray(rawOpts.presets)) throw new Error(`${alias}.presets should be an array`);
+      if (!Array.isArray(rawOpts.presets)) {
+        throw new Error(`${alias}.presets should be an array`);
+      }
 
-      opts.presets = this.resolvePresets(opts.presets, dirname, (preset, presetLoc) => {
-        this.mergeOptions({
-          type: "preset",
-          options: preset,
+      opts.presets = this.resolvePresets(
+        opts.presets,
+        dirname,
+        (preset, presetLoc) => {
+          this.mergeOptions({
+            type: "preset",
+            options: preset,
 
-          // For `passPerPreset` we merge child options back into the preset object instead of the root.
-          extending: opts.passPerPreset ? preset : null,
-          alias: presetLoc,
-          loc: presetLoc,
-          dirname: dirname,
-        });
-      });
+            // For `passPerPreset` we merge child options back into the preset object instead of the root.
+            extending: opts.passPerPreset ? preset : null,
+            alias: presetLoc,
+            loc: presetLoc,
+            dirname: dirname,
+          });
+        },
+      );
 
       // If not passPerPreset, the plugins have all been merged into the parent config so the presets
       // list is not needed.
@@ -319,11 +355,13 @@ export default class OptionManager {
    * or a module name to require.
    */
   resolvePresets(presets: Array<string | Object>, dirname: string, onResolve?) {
-    return presets.map((preset) => {
+    return presets.map(preset => {
       let options;
       if (Array.isArray(preset)) {
         if (preset.length > 2) {
-          throw new Error(`Unexpected extra options ${JSON.stringify(preset.slice(2))} passed to preset.`);
+          throw new Error(
+            `Unexpected extra options ${JSON.stringify(preset.slice(2))} passed to preset.`,
+          );
         }
 
         [preset, options] = preset;
@@ -335,11 +373,15 @@ export default class OptionManager {
           presetLoc = resolvePreset(preset, dirname);
 
           if (!presetLoc) {
-            throw new Error(`Couldn't find preset ${JSON.stringify(preset)} relative to directory ` +
-              JSON.stringify(dirname));
+            throw new Error(
+              `Couldn't find preset ${JSON.stringify(preset)} relative to directory ` +
+                JSON.stringify(dirname),
+            );
           }
         }
-        const resolvedPreset = this.loadPreset(presetLoc || preset, options, { dirname });
+        const resolvedPreset = this.loadPreset(presetLoc || preset, options, {
+          dirname,
+        });
 
         if (onResolve) onResolve(resolvedPreset, presetLoc);
 
@@ -367,7 +409,9 @@ export default class OptionManager {
       if (presetFactory.default) {
         presetFactory = presetFactory.default;
       } else {
-        throw new Error("Preset must export a default export when using ES6 modules.");
+        throw new Error(
+          "Preset must export a default export when using ES6 modules.",
+        );
       }
     }
 
@@ -378,7 +422,9 @@ export default class OptionManager {
 
     if (typeof presetFactory !== "function") {
       // eslint-disable-next-line max-len
-      throw new Error(`Unsupported preset format: ${typeof presetFactory}. Expected preset to return a function.`);
+      throw new Error(
+        `Unsupported preset format: ${typeof presetFactory}. Expected preset to return a function.`,
+      );
     }
 
     return presetFactory(context, options, meta);

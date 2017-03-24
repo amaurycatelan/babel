@@ -55,7 +55,7 @@ export function get(key: string, ...args: Array<any>): string {
   args = parseArgs(args);
 
   // replace $0 placeholders with args
-  return msg.replace(/\$(\d+)/g, function (str, i) {
+  return msg.replace(/\$(\d+)/g, function(str, i) {
     return args[i - 1];
   });
 }
@@ -65,7 +65,7 @@ export function get(key: string, ...args: Array<any>): string {
  */
 
 export function parseArgs(args: Array<any>): Array<string> {
-  return args.map(function (val) {
+  return args.map(function(val) {
     if (val != null && val.inspect) {
       return val.inspect();
     } else {

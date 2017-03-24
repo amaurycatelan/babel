@@ -13,7 +13,7 @@ export template from "babel-template";
 
 import loadConfig from "./config";
 
-export function loadOptions(opts): Object|null {
+export function loadOptions(opts): Object | null {
   const config = loadConfig(opts);
 
   return config ? config.options : null;

@@ -23,9 +23,11 @@ const hoistVariablesVisitor = {
 
     for (const declar of (path.node.declarations: Array<Object>)) {
       if (declar.init) {
-        exprs.push(t.expressionStatement(
-          t.assignmentExpression("=", declar.id, declar.init)
-        ));
+        exprs.push(
+          t.expressionStatement(
+            t.assignmentExpression("=", declar.id, declar.init),
+          ),
+        );
       }
     }
 
@@ -47,7 +49,7 @@ export function replaceWithMultiple(nodes: Array<Object>) {
   nodes = this._verifyNodeList(nodes);
   t.inheritLeadingComments(nodes[0], this.node);
   t.inheritTrailingComments(nodes[nodes.length - 1], this.node);
-  this.node = this.container[this.key] = null;
+  this.node = (this.container[this.key] = null);
   this.insertAfter(nodes);
 
   if (this.node) {
@@ -101,7 +103,9 @@ export function replaceWith(replacement) {
   }
 
   if (!replacement) {
-    throw new Error("You passed `path.replaceWith()` a falsy node, use `path.remove()` instead");
+    throw new Error(
+      "You passed `path.replaceWith()` a falsy node, use `path.remove()` instead",
+    );
   }
 
   if (this.node === replacement) {
@@ -109,17 +113,21 @@ export function replaceWith(replacement) {
   }
 
   if (this.isProgram() && !t.isProgram(replacement)) {
-    throw new Error("You can only replace a Program root node with another Program node");
+    throw new Error(
+      "You can only replace a Program root node with another Program node",
+    );
   }
 
   if (Array.isArray(replacement)) {
     throw new Error(
-      "Don't use `path.replaceWith()` with an array of nodes, use `path.replaceWithMultiple()`");
+      "Don't use `path.replaceWith()` with an array of nodes, use `path.replaceWithMultiple()`",
+    );
   }
 
   if (typeof replacement === "string") {
     throw new Error(
-      "Don't use `path.replaceWith()` with a source string, use `path.replaceWithSourceString()`");
+      "Don't use `path.replaceWith()` with a source string, use `path.replaceWithSourceString()`",
+    );
   }
 
   if (this.isNodeType("Statement") && t.isExpression(replacement)) {
@@ -177,7 +185,7 @@ export function _replaceWith(node) {
 
   this.debug(() => `Replace with ${node && node.type}`);
 
-  this.node = this.container[this.key] = node;
+  this.node = (this.container[this.key] = node);
 }
 
 /**
@@ -214,11 +222,13 @@ export function replaceExpressionWithStatements(nodes: Array<Object>) {
     this.traverse(hoistVariablesVisitor);
 
     // add implicit returns to all ending expression statements
-    const completionRecords: Array<NodePath> = this.get("callee").getCompletionRecords();
+    const completionRecords: Array<NodePath> = this.get(
+      "callee",
+    ).getCompletionRecords();
     for (const path of completionRecords) {
       if (!path.isExpressionStatement()) continue;
 
-      const loop = path.findParent((path) => path.isLoop());
+      const loop = path.findParent(path => path.isLoop());
       if (loop) {
         let uid = loop.getData("expressionReplacementReturnUid");
 
@@ -231,9 +241,9 @@ export function replaceExpressionWithStatements(nodes: Array<Object>) {
           uid = t.identifier(uid.name);
         }
 
-        path.get("expression").replaceWith(
-          t.assignmentExpression("=", uid, path.node.expression)
-        );
+        path
+          .get("expression")
+          .replaceWith(t.assignmentExpression("=", uid, path.node.expression));
       } else {
         path.replaceWith(t.returnStatement(path.node.expression));
       }
