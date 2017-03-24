@@ -7,6 +7,7 @@ var watch   = require("gulp-watch");
 var gutil   = require("gulp-util");
 var gulp    = require("gulp");
 var path    = require("path");
+var babelConfig = require("./.babelrc");
 
 var scripts = "./packages/*/src/**/*.js";
 
@@ -37,7 +38,7 @@ gulp.task("build", function () {
       gutil.log("Compiling", "'" + chalk.cyan(file.path) + "'...");
       callback(null, file);
     }))
-    .pipe(babel())
+    .pipe(babel(babelConfig))
     .pipe(through.obj(function (file, enc, callback) {
       file._path = file.path;
       file.path = mapToDest(file.path);
@@ -66,7 +67,7 @@ gulp.task("build-watch", function () {
       gutil.log("Compiling", "'" + chalk.cyan(file._path) + "'...");
       callback(null, file);
     }))
-    .pipe(babel())
+    .pipe(babel(babelConfig))
     .pipe(gulp.dest(dest));
 });
 

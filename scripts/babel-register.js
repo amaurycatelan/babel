@@ -1,5 +1,5 @@
-var babel = require("../package.json").babel;
-var register = require("babel-register");
+var babel = require("../.babelrc");
+var register = require("babel-register").default;
 var path = require("path");
 
 if (babel.plugins) {
@@ -17,7 +17,7 @@ register(babel);
 register({
   extensions: [".js"],
   // Only js files in the test folder but not in the subfolder fixtures.
-  only: /packages\/.+\/test\/(?!fixtures\/).+\.js$/,
+  only: [/packages\/.+\/test\/(?!fixtures\/).+\.js$/],
   babelrc: false,
   compact: true,
 });
